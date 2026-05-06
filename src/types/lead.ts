@@ -1,4 +1,5 @@
-export type LeadSource = "Google" | "Referral" | "Social" | "Other";
+export const LEAD_SOURCES = ["Google", "Referral", "Social", "Other"] as const;
+export type LeadSource = typeof LEAD_SOURCES[number];
 
 export type LeadInput = {
   name: string;

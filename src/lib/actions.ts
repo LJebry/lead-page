@@ -2,10 +2,8 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase";
 import { forwardLeadToWebhook } from "@/lib/webhook";
-import type { LeadInput } from "@/types/lead";
-
-export const LEAD_SOURCES = ["Google", "Referral", "Social", "Other"] as const;
-export type LeadSource = typeof LEAD_SOURCES[number];
+import { LEAD_SOURCES } from "@/types/lead";
+import type { LeadInput, LeadSource } from "@/types/lead";
 
 export type CreateLeadState = {
   success: boolean;
