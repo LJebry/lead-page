@@ -11,8 +11,7 @@ export default function Home() {
           Lead capture page
         </h1>
         <p className="mt-4 text-base leading-7 text-slate-600">
-          Starter page for the public lead form. Wire this form to the server
-          action, Supabase insert, and webhook side effect when you are ready.
+          This is a simple lead capture page built with Next.js. Fill out the form below to submit your information, which will be forwarded to a webhook for processing.
         </p>
       </section>
 
