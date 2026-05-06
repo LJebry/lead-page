@@ -11,12 +11,19 @@ export type CreateLeadState = {
   fieldErrors?: Partial<Record<keyof LeadInput, string>>;
 };
 
+
+/*
+Helper function to handle acidental whitespace from user input
+for example "  John Doe  " will be trimmed to "John Doe"
+*/ 
 function getStringValue(formData: FormData, key: string) {
   const value = formData.get(key);
 
   return typeof value === "string" ? value.trim() : "";
 }
-
+/*
+Validates the lead input from the form data. It checks for required fields, email format, and valid source. It returns an object containing the lead data, any field errors, and a boolean indicating if the input is valid.
+*/
 function validateLead(formData: FormData) {
   const fieldErrors: CreateLeadState["fieldErrors"] = {};
 
@@ -49,6 +56,10 @@ function validateLead(formData: FormData) {
   };
 }
 
+
+  /* 
+  this function is the server action that will be called when the form is submitted. It validates the input, saves the lead to the database, and forwards it to the webhook. It returns a state object that indicates whether the submission was successful and any error messages to display to the user.
+  */
 export async function createLeadAction(
   _previousState: CreateLeadState,
   formData: FormData,
@@ -74,7 +85,8 @@ export async function createLeadAction(
   });
 
   if (error) {
-    if (error.code === "23505") {
+    if (error.code === "23505") // 23505 is the Postgres error code for unique violation, which means a lead with the same email already exists 
+    { 
       return {
         success: false,
         message: "A lead with this email already exists.",
@@ -86,12 +98,14 @@ export async function createLeadAction(
 
     console.error("Failed to save lead", error);
 
+    // For other uncatched types of errors return a generic message
     return {
       success: false,
       message: "Something went wrong while saving your information.",
     };
   }
 
+  // Forward the lead to the webhook, but don't fail the request if the webhook call fails. We want to ensure that the lead is saved in our database even if the webhook is down or has issues.
   try {
     await forwardLeadToWebhook(validation.lead);
   } catch (error) {
