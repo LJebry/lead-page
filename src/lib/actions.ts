@@ -2,9 +2,10 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase";
 import { forwardLeadToWebhook } from "@/lib/webhook";
-import type { LeadInput, LeadSource } from "@/types/lead";
+import type { LeadInput } from "@/types/lead";
 
-const leadSources: LeadSource[] = ["Google", "Referral", "Social", "Other"];
+export const LEAD_SOURCES = ["Google", "Referral", "Social", "Other"] as const;
+export type LeadSource = typeof LEAD_SOURCES[number];
 
 export type CreateLeadState = {
   success: boolean;
@@ -39,7 +40,7 @@ function validateLead(formData: FormData) {
     fieldErrors.email = "Enter a valid email address.";
   }
 
-  if (!leadSources.includes(lead.source)) {
+  if (!LEAD_SOURCES.includes(lead.source as LeadSource)) {
     fieldErrors.source = "Choose how you heard about us.";
   }
 
