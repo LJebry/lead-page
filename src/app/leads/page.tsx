@@ -1,8 +1,36 @@
-import type { Lead } from "@/types/lead";
+import { createSupabaseServerClient } from "@/lib/supabase";
 
-const placeholderLeads: Lead[] = [];
+export const dynamic = "force-dynamic";
 
-export default function LeadsPage() {
+type LeadRow = {
+  id: string;
+  name: string;
+  email: string;
+  company: string | null;
+  source: string;
+  created_at: string;
+};
+
+function formatSubmittedDate(value: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
+
+export default async function LeadsPage() {
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("leads")
+    .select("id, name, email, company, source, created_at")
+    .order("created_at", { ascending: false })
+    .returns<LeadRow[]>();
+  const leads = data ?? [];
+
+  if (error) {
+    console.error("Failed to load leads", error);
+  }
+
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-12 sm:px-8 lg:px-10">
       <div className="mb-8">
@@ -14,7 +42,7 @@ export default function LeadsPage() {
         </h1>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="bg-slate-100 text-slate-600">
             <tr>
@@ -26,14 +54,37 @@ export default function LeadsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
-            {placeholderLeads.length === 0 ? (
+            {error ? (
               <tr>
-                <td className="px-4 py-6 text-slate-500" colSpan={5}>
-                  TODO: Fetch leads from Supabase server-side and sort newest
-                  first.
+                <td className="px-4 py-6 text-red-600" colSpan={5}>
+                  Unable to load leads right now.
                 </td>
               </tr>
             ) : null}
+
+            {!error && leads.length === 0 ? (
+              <tr>
+                <td className="px-4 py-6 text-slate-500" colSpan={5}>
+                  No leads submitted yet.
+                </td>
+              </tr>
+            ) : null}
+
+            {!error
+              ? leads.map((lead) => (
+                  <tr key={lead.id} className="text-slate-700">
+                    <td className="px-4 py-3 font-medium text-slate-950">
+                      {lead.name}
+                    </td>
+                    <td className="px-4 py-3">{lead.email}</td>
+                    <td className="px-4 py-3">{lead.company || "-"}</td>
+                    <td className="px-4 py-3">{lead.source}</td>
+                    <td className="px-4 py-3">
+                      {formatSubmittedDate(lead.created_at)}
+                    </td>
+                  </tr>
+                ))
+              : null}
           </tbody>
         </table>
       </div>
