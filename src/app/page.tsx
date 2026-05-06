@@ -11,7 +11,8 @@ export default function Home() {
           Lead capture page
         </h1>
         <p className="mt-4 text-base leading-7 text-slate-600">
-          This is a simple lead capture page built with Next.js. Fill out the form below to submit your information, which will be forwarded to a webhook for processing.
+          Share a few details and we will route your request through our lead
+          intake workflow.
         </p>
       </section>
 
