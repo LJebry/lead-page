@@ -1,4 +1,3 @@
--- TODO: Use this as a starting point in Supabase SQL editor.
 -- Keep anonymous users from reading leads directly from the client.
 
 create table if not exists public.leads (
@@ -13,6 +12,9 @@ create table if not exists public.leads (
 
 alter table public.leads enable row level security;
 
--- TODO: Add policies that match your final implementation.
--- Common approach: insert/read from server-side code using a service role key,
--- and do not expose direct anonymous read access.
+grant usage on schema public to service_role;
+grant select, insert on public.leads to service_role;
+
+-- No anon select policy is created. Leads are inserted and read server-side
+-- with the service role key, so anonymous client requests cannot read leads
+-- directly through the Supabase client.
